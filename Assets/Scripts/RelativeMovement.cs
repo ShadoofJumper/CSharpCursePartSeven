@@ -38,26 +38,32 @@ public class RelativeMovement : MonoBehaviour
             movement = Vector3.ClampMagnitude(movement, moveSpeed); // ограничиваем движение по диагонали
 
             Quaternion tmp = target.rotation; // save start orientation
-            target.eulerAngles = new Vector3(0, target.eulerAngles.y, 0);
+
+            target.eulerAngles = new Vector3(0, target.eulerAngles.y, 0);// what doing this line?
             movement = target.TransformDirection(movement);
             target.rotation = tmp;
 
             Quaternion diraction = Quaternion.LookRotation(movement); // savee direction
             transform.rotation = Quaternion.Lerp(transform.rotation, diraction, rotSpeed * Time.deltaTime);// move from start to direction in speed rotSpeed 
-                
+                                                                                                           ////////
+        }
+        bool hitGround = false;
+        RaycastHit hit;
 
-            bool hitGround = false;
-            RaycastHit hit;
+        if (_varSpeed < 0 && Physics.Raycast(transform.position, Vector3.down, out hit)) //бросем луч из центра игрока вниз и передаем результат в хит
+        {
+            float check = (_charController.height + _charController.radius) / 1.9f; // растояние от центра к нижниму краю капсулі, + немного еще, потому что делим попалам "почти"
 
-            if (_varSpeed < 0 && Physics.Raycast(transform.position, Vector3.down, out hit)) //бросем луч из центра игрока вниз и передаем результат в хит
-            {
-                float check = (_charController.height + _charController.radius) / 1.9f; // растояние от центра к нижниму краю капсулі, + немного еще, потому что делим попалам "почти"
+                Debug.Log("distance: "+ hit.distance);
+                Debug.Log("check: " + check);
                 hitGround = hit.distance <= check; //
-            }
+                Debug.Log("hitGround: " + hitGround);
+        }
 
-            // for jump logic
-            if (hitGround) // if on ground
-            {
+        // for jump logic
+        if (hitGround) // if on ground
+         {
+                Debug.Log("if raycast hit ground");
                 if (Input.GetButtonDown("Jump"))
                 {
                     _varSpeed = jumpSpeed;
@@ -66,9 +72,10 @@ public class RelativeMovement : MonoBehaviour
                 {
                     _varSpeed = minFall;
                 }
-            }
-            else // if in air
-            {
+        }
+        else // if in air
+        {
+                Debug.Log("if raycast not hit ground");
                 // use gravity until have max terminal speed
                 _varSpeed += gravity * 5 * Time.deltaTime;
                 if (_varSpeed < terminalVelocity)
@@ -78,28 +85,31 @@ public class RelativeMovement : MonoBehaviour
 
                 if (_charController.isGrounded)
                 {
-                    Debug.Log("AAAAAAAA");
-                    if (Vector3.Dot(movement, _contact.normal) < 0) //берем скалярное умножение вектора движения и номрали плоскости, если оно отрицательное то мы толкаем в нужную сторону.
-                    {
-                        movement = _contact.normal * moveSpeed;
-                    }
-                    else
-                    {
-                        movement += _contact.normal * moveSpeed;
-                    }
-                }
+                Debug.Log("if raycast not hit ground BUT control DO");
+                if (Vector3.Dot(movement, _contact.normal) < 0) //берем скалярное умножение вектора движения и номрали плоскости, если оно отрицательное то мы толкаем в нужную сторону.
+                {
+                    movement = _contact.normal * moveSpeed;
+                 }
+                else
+                {
+                    movement += _contact.normal * moveSpeed;
+                 }
             }
-
-
-
-            movement.y = _varSpeed;
-            movement *= Time.deltaTime;
-            _charController.Move(movement);
         }
 
-        void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            _contact = hit;
-        }
+
+
+         movement.y = _varSpeed;
+         movement *= Time.deltaTime;
+
+
+         _charController.Move(movement);
+
+ 
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        _contact = hit;
     }
 }
