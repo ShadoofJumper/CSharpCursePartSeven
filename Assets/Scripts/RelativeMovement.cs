@@ -14,6 +14,7 @@ public class RelativeMovement : MonoBehaviour
     public float terminalVelocity = -10.0f;
     public float minFall = -1.5f;
 
+    private Animator _animator;
     private float _varSpeed;
     private ControllerColliderHit _contact; // save data about function condlict
 
@@ -23,6 +24,7 @@ public class RelativeMovement : MonoBehaviour
     {
         _varSpeed = minFall;
         _charController = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -52,13 +54,15 @@ public class RelativeMovement : MonoBehaviour
 
         if (_varSpeed < 0 && Physics.Raycast(transform.position, Vector3.down, out hit)) //бросем луч из центра игрока вниз и передаем результат в хит
         {
-            float check = (_charController.height + _charController.radius) / 1.9f; // растояние от центра к нижниму краю капсулі, + немного еще, потому что делим попалам "почти"
+            float check = (_charController.height + _charController.radius) / 1.9f; // растояние от центра к нижниму краю капсулы, + немного еще, потому что делим попалам "почти"
 
                 Debug.Log("distance: "+ hit.distance);
                 Debug.Log("check: " + check);
                 hitGround = hit.distance <= check; //
-                Debug.Log("hitGround: " + hitGround);
+               // Debug.Log("hitGround: " + hitGround);
         }
+
+       _animator.SetFloat("speed", movement.sqrMagnitude);
 
         // for jump logic
         if (hitGround) // if on ground
@@ -70,29 +74,38 @@ public class RelativeMovement : MonoBehaviour
                 }
                 else
                 {
-                    _varSpeed = minFall;
+                     _varSpeed = minFall;
+                    //_varSpeed = -0.1f;
+                // disable jump animation if on ground
+                   _animator.SetBool("jumping", false);
                 }
-        }
+    }
         else // if in air
         {
                 Debug.Log("if raycast not hit ground");
                 // use gravity until have max terminal speed
-                _varSpeed += gravity * 5 * Time.deltaTime;
-                if (_varSpeed < terminalVelocity)
+                _varSpeed += gravity* 5 * Time.deltaTime;
+                if (_varSpeed<terminalVelocity)
                 {
                     _varSpeed = terminalVelocity;
                 }
+
+                if (_contact != null)//if not start of lvl and we have info in this variable
+                {
+                   _animator.SetBool("jumping", true);
+                }
+
 
                 if (_charController.isGrounded)
                 {
                 Debug.Log("if raycast not hit ground BUT control DO");
                 if (Vector3.Dot(movement, _contact.normal) < 0) //берем скалярное умножение вектора движения и номрали плоскости, если оно отрицательное то мы толкаем в нужную сторону.
                 {
-                    movement = _contact.normal * moveSpeed;
+                    movement = _contact.normal* moveSpeed;
                  }
                 else
                 {
-                    movement += _contact.normal * moveSpeed;
+                    movement += _contact.normal* moveSpeed;
                  }
             }
         }

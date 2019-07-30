@@ -2136,7 +2136,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400038, guid: bd7eca415d547a54abfd291ff8a991b7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.58
+      value: 0.59
       objectReference: {fileID: 0}
     - target: {fileID: 400038, guid: bd7eca415d547a54abfd291ff8a991b7, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2216,7 +2216,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 534669905}
   rotSpeed: 15
-  moveSpeed: 6
+  moveSpeed: 3
   jumpSpeed: 7
   gravity: -9.8
   terminalVelocity: -10
@@ -2232,7 +2232,7 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 0.57
+  m_Height: 0.6
   m_Radius: 0.12
   m_SlopeLimit: 45
   m_StepOffset: 0.3
